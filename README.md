@@ -72,4 +72,4 @@ When checking the primary connection we see 3 paths to the VNet prefix. One via 
 
 # Summary
 
-tl;dr Standard BGP stuff under the covers, no need for customer tuning and the most optimal route is always used, ensuring you get the best latency and performance.
+tl;dr Standard BGP stuff under the covers, n-o need for customer tuning and the most optimal route is always used, ensuring you get the best latency and performance.
