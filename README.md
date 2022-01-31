@@ -31,7 +31,7 @@ Short answer is no. Whilst ER Circuits act as L3 routers between any associated 
 
 In the diagram, we clearly want traffic from purple to blue (VNet to AVS) and vice versa, to traverse directly. We do not want this traffic to pass via Red.
 
-Similarly when red talks to purple, we do not want this traffic to pass via blue. (Even thought it _could_).
+Similarly when red talks to purple, we do not want this traffic to pass via blue. (Even though it _could_).
 
 To explain what is happening lets focus on purple to blue.
 
@@ -72,4 +72,6 @@ When checking the primary connection we see 3 paths to the VNet prefix. One via 
 
 # Summary
 
-tl;dr Standard BGP stuff under the covers, n-o need for customer tuning and the most optimal route is always used, ensuring you get the best latency and performance.
+tl;dr Standard BGP stuff under the covers, no need for customer tuning and the most optimal route is always used, ensuring you get the best latency and performance.
+
+Jose Moreno talks more about GlobalReach here https://blog.cloudtrooper.net/2021/12/21/expressroute-global-reach-under-the-covers/
