@@ -74,6 +74,8 @@ When checking the primary connection we see 3 paths to the VNet prefix. One via 
 
 Purple and blue talk directly, in both directions (Symmetrically). You should always connect AVS designs in this triangular fashion (It is somewhat common to see customers skipping b, because it _will_ work without it at a functional level).
 
+> NB. This is also the same logic as to why red and purple talk direct. And why AVS does not act as a hairpin for your regular onprem>vnet traffic.
+
 tl;dr Standard BGP stuff under the covers, no need for customer tuning and the most optimal route is always used, ensuring you get the best latency and performance.
 
 Jose Moreno talks more about GlobalReach here https://blog.cloudtrooper.net/2021/12/21/expressroute-global-reach-under-the-covers/
