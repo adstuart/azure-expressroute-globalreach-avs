@@ -11,7 +11,7 @@ A typical topology looks as below.
 Let's consider the underlying BGP topology.
 
 - [purple] Azure VNet contains ExpressRoute Gateway (BGP AS 65515)
-- [red] Microsoft Edge (MSEE) contain customer ExpressRoute circuit, used for regular On-Premises connectivity (BGP AS 65515 + 398656)
+- [red] Microsoft Edge (MSEE) contain customer ExpressRoute circuit, used for regular On-Premises connectivity (BGP AS 12076 + 398656)
 - [red] Customer managed Edge routers, AS 65000 in this lab
 - [blue] Microsoft Dedicated Edge (DMSEE) contain customer AVS ExpressRoute circuit, used for any connectivity in/out AVS (BGP AS 65515 )
 - [connection a] The normal connection between MSEE and customer VNet
