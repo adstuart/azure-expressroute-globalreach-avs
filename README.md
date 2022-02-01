@@ -4,6 +4,8 @@
 
 Today, AVS connects to the Azure VNet using a special implementation of ExpressRoute, entirely contained within the Azure Region. (ExpressRoute is more typically used for On-Premises connectivity). If you are completely new to AVS, checkout this document first - https://docs.microsoft.com/en-us/azure/azure-vmware/tutorial-expressroute-global-reach-private-cloud
 
+> This logic could equally apply to other Azure dedicated offerings, such as Skytap, SAP HLI and Baremetal.
+
 A typical topology looks as below.
 
 ![](images/2022-01-31-21-44-41.png)
@@ -79,3 +81,24 @@ Purple and blue talk directly, in both directions (Symmetrically). You should al
 tl;dr Standard BGP stuff under the covers, no need for customer tuning and the most optimal route is always used, ensuring you get the best latency and performance.
 
 Jose Moreno talks more about GlobalReach here https://blog.cloudtrooper.net/2021/12/21/expressroute-global-reach-under-the-covers/
+
+# Bonus Gotcha (Interaction with multiple on-prem circuits)
+
+Thanks to Daniel Mauser for pointing this one out, which makes a good addition here.
+
+For customers running multiple on-premises ER circuits, they may be using weight to ensure that VNet to VNet traffic (often inter-region) utilises a specific Edge PoP. Explained further here - https://docs.microsoft.com/en-us/azure/expressroute/expressroute-optimize-routing#solution-assign-a-high-weight-to-local-connection
+
+This use of weight introduces an addition consideration for us, as shown in the diagram below. With the following additions:
+
+- Second on-prem ER circuit added (orange)
+- Weight is being used to prefer the red ER connection
+
+![](images/2022-02-01-08-52-46.png)
+
+We have created ourselves a problem, because the use of Weight superseeds the as-path precedence as laid out in the section above. I.e. Even thought the purple>red>blue route has a longer as-path, because the customer is using "Weight 200" on the "a" connection, this gets preferred.
+
+![](images/2022-02-01-08-54-20.png)
+
+The solution here is to ensure that "a" and "b" connection weights are the same, and therefore the BGP selection process will step down to as-path length to break the tie.
+
+![](images/2022-02-01-08-55-34.png)
