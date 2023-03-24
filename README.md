@@ -71,7 +71,7 @@ Network            NextHop                     Weight    Path
 
 (192.168.200.0/24 is my VNet prefix within the purple box)
 
-When checking the primary connection we see 3 paths to the VNet prefix. One via GlobalReach (blue>red>purple) and 2 directly to my ER Gateway (blue>red). What is ensuring we take the optimal VNET route (blue>red) here? 
+When checking the primary connection we see 3 paths to the VNet prefix. One via GlobalReach (blue>red>purple) and 2 directly to my ER Gateway (blue>red). What is ensuring we take the optimal VNET route (blue>red) here? Let us revisit the BGP selection algorithm.
 
 - Weight? Equal
 - LocalPref? Equal
@@ -79,7 +79,7 @@ When checking the primary connection we see 3 paths to the VNet prefix. One via 
 - AS-Path? Equal (Its the same, despite their being more router-hops, because when an iBGP neighbor (red) learns routes from an eBGP neighbor (pruple) and readvertises those same routes to another iBGP neighbor (blue), it does not add its own ASN to increment the path)
 - Origin Code? Same
 - MED? No
-- eBGP routes are preferred over iBGP routes. This is our tie break. Remember that our purple VNET Gateway Peer is via EBGP to AS65515, whereas our red MSEE peer is IBGP to AS 12076. Therefore one of our VNET Gateway Routes (multiple nodes) is chosen, which one, or why, does not matter in this context.
+- **eBGP routes are preferred over iBGP routes**. This is our tie break. Remember that our purple VNET Gateway Peer is via eBGP to AS65515, whereas our red MSEE peer is iBGP to AS 12076. Therefore one of our VNET Gateway Routes (multiple nodes) is chosen, which one, or why, does not matter in this context, all that is important is that we choose one of these routes over the GR route.
 
 ![](images/210215.png)
 
