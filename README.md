@@ -81,7 +81,7 @@ When checking the primary connection we see 3 paths to the VNet prefix. One via 
 - MED? No
 - eBGP routes are preferred over iBGP routes. This is our tie break. Remember that our purple VNET Gateway Peer is via EBGP to AS65515, whereas our red MSEE peer is IBGP to AS 12076. Therefore one of our VNET Gateway Routes (multiple nodes) is chosen, which one, or why, does not matter in this context.
 
-![](images/Screenshot 2023-03-24 210215.png)
+![](images/"Screenshot 2023-03-24 210215.png")
 
 # Summary
 
