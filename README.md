@@ -62,9 +62,9 @@ I.e. The additional AS hops added by utilising globalreach on the purple>red>blu
 Let's take a look how the blue circuit sees the world.
 
 ```
-Network            NextHop           LocPrf    Weight    Path
+Network            NextHop                     Weight    Path
 
-192.168.200.0      10.0.0.129        10        0         65515
+192.168.200.0      10.0.0.129                  0         65515
 192.168.200.0      192.168.200.143             0         65515
 192.168.200.0      192.168.200.141*            0         65515
 ```
@@ -73,10 +73,10 @@ Network            NextHop           LocPrf    Weight    Path
 
 When checking the primary connection we see 3 paths to the VNet prefix. One via GlobalReach (blue>red>purple) and 2 directly to my ER Gateway (blue>red). What is ensuring we take the optimal VNET route (blue>red) here? 
 
-- Weight? No, equal
-- LocalPref? You might think yes, but this is actual just a GUI apparition
+- Weight? Equal
+- LocalPref? Equal
 - Origin? Same
-- AS-Path? Equal
+- AS-Path? Equal (Its the same, despite their being more router-hops, because when an iBGP neighbor (red) learns routes from an eBGP neighbor (pruple) and readvertises those same routes to another iBGP neighbor (blue), it does not add its own ASN to increment the path)
 - Origin Code? Same
 - MED? No
 - eBGP routes are preferred over iBGP routes. This is our tie break. Remember that our purple VNET Gateway Peer is via EBGP to AS65515, whereas our red MSEE peer is IBGP to AS 12076. Therefore one of our VNET Gateway Routes (multiple nodes) is chosen, which one, or why, does not matter in this context.
