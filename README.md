@@ -69,11 +69,19 @@ Network            NextHop           LocPrf    Weight    Path
 192.168.200.0      192.168.200.141*            0         65515
 ```
 
-(192.168.200.0/24 is my VNet prefix)
+(192.168.200.0/24 is my VNet prefix within the purple box)
 
-When checking the primary connection we see 3 paths to the VNet prefix. One via GlobalReach (blue>red>purple) and 2 directly to my ER Gateway (blue>red). **Ignore the local preference this is a GUI apparition, the tie break here is that EBGP routes are preferred over IBGP routes**.
+When checking the primary connection we see 3 paths to the VNet prefix. One via GlobalReach (blue>red>purple) and 2 directly to my ER Gateway (blue>red). What is ensuring we take the optimal VNET route (blue>red) here? 
 
-![](images/2022-01-31-22-06-24.png)
+- Weight? No, equal
+- LocalPref? You might think yes, but this is actual just a GUI apparition
+- Origin? Same
+- AS-Path? Equal
+- Origin Code? Same
+- MED? No
+- eBGP routes are preferred over iBGP routes. This is our tie break. Remember that our purple VNET Gateway Peer is via EBGP to AS65515, whereas our red MSEE peer is IBGP to AS 12076. Therefore one of our VNET Gateway Routes (multiple nodes) is chosen, which one, or why, does not matter in this context.
+
+![](images/Screenshot 2023-03-24 210215.png)
 
 # Summary
 
@@ -83,25 +91,27 @@ Purple and blue talk directly, in both directions (Symmetrically). You should al
 
 tl;dr Standard BGP stuff under the covers, no need for customer tuning and the most optimal route is always used, ensuring you get the best latency and performance.
 
-Jose Moreno talks more about GlobalReach here https://blog.cloudtrooper.net/2021/12/21/expressroute-global-reach-under-the-covers/
+Jose Moreno talks more about this topic in the following great blogs:
+- GlobalReach here https://blog.cloudtrooper.net/2021/12/21/expressroute-global-reach-under-the-covers/
+- AVS voodoo here https://blog.cloudtrooper.net/2022/05/16/azure-vmware-solution-networking-voodoo/
 
 # Bonus Gotcha (Interaction with multiple on-prem circuits)
 
 Thanks to Daniel Mauser for pointing this one out, which makes a good addition here.
 
-For customers running multiple on-premises ER circuits, they may be using weight to ensure that VNet to VNet traffic (often inter-region) utilises a specific Edge PoP. Explained further here - https://docs.microsoft.com/en-us/azure/expressroute/expressroute-optimize-routing#solution-assign-a-high-weight-to-local-connection
+For customers running multiple on-premises ER circuits, they may be using weight (on the ER Connection object) to ensure that VNet to VNet traffic (often inter-region) utilises a specific Edge PoP. Explained further here - https://docs.microsoft.com/en-us/azure/expressroute/expressroute-optimize-routing#solution-assign-a-high-weight-to-local-connection
 
-This use of weight introduces an addition consideration for us, as shown in the diagram below. With the following additions:
+This use of weight introduces an additional consideration for us, as shown in the diagram below. With the following additions:
 
 - Second on-prem ER circuit added (orange)
 - Weight is being used to prefer the red ER connection
 
 ![](images/2022-02-01-08-52-46.png)
 
-We have created ourselves a problem, because the use of Weight superseeds the as-path precedence as laid out in the section above. I.e. Even thought the purple>red>blue route has a longer as-path, because the customer is using "Weight 200" on the "a" connection, this gets preferred.
+We have created ourselves a problem, because the use of Weight superseeds the as-path precedence as laid out in the section above. I.e. Even though the purple>red>blue route has a longer as-path, because the customer is using "Weight 200" on the "a" connection, this gets preferred.
 
 ![](images/2022-02-01-08-54-20.png)
 
-The solution here is to ensure that "a" and "b" connection weights are the same, and therefore the BGP selection process will step down to as-path length to break the tie.
+The solution here is to ensure that "a" and "b" connection weights are the same, and therefore the BGP selection process will step down to as-path length to break the tie. (Whilst still allowing the use of the orange circuit for other VNet to VNet traffic that is dual homed to orange and red.
 
 ![](images/2022-02-01-08-55-34.png)
