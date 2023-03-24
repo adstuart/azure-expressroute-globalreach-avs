@@ -6,19 +6,20 @@ Today, AVS connects to the Azure VNet using a special implementation of ExpressR
 
 > This logic could equally apply to other Azure dedicated offerings, such as Skytap, SAP HLI and Baremetal.
 
-A typical topology looks as below.
+A typical (overly simplified) topology looks as below.
 
 ![](images/2022-01-31-21-44-41.png)
 
 Let's consider the underlying BGP topology.
 
-- [purple] Azure VNet contains ExpressRoute Gateway (BGP AS 65515)
-- [red] Microsoft Edge (MSEE) contain customer ExpressRoute circuit, used for regular On-Premises connectivity (BGP AS 12076 + 398656)
-- [red] Customer managed Edge routers, AS 65000 in this lab
-- [blue] Microsoft Dedicated Edge (DMSEE) contain customer AVS ExpressRoute circuit, used for any connectivity in/out AVS (BGP AS 65515 )
-- [connection a] The normal connection between MSEE and customer VNet
-- [connection b] The connection used to optimally send traffic from AVS<>Azure VNet
-- [globalreach] Used to allow On-Premises to access AVS
+- [purple] Azure VNet contains ExpressRoute Gateway (BGP AS65515) (May or may not be using FastPath)
+- [red] Microsoft Edge (MSEE) contains customer ExpressRoute circuit, used for regular On-Premises connectivity (BGP AS12076)
+- [red] Customer routers, AS 65000 in this lab
+- [blue] Microsoft Dedicated Edge (DMSEE) contains customer AVS ExpressRoute circuit, used for any connectivity in/out AVS (BGP AS12076)
+- [blue] AVS infrastrucutre - SDDC etc, lots of hand waving here, but the ASN you see will be something like AS398656
+- [connection a] The normal connection between MSEE and customer VNet (EBGP AS12076 to AS65515)
+- [connection b] The connection used to optimally send traffic from AVS<>Azure VNet (without needing to via GlobalReach, this is often missed, but should always be configured) (EBGP AS12076 to AS65515)
+- [globalreach] Used to allow On-Premises to access AVS (IBGP between AS12076 to AS12076)
 
 ## Do we have a routing loop?
 
@@ -54,7 +55,9 @@ I.e. The additional AS hops added by utilising globalreach on the purple>red>blu
 
 ![](images/2022-01-31-22-05-08.png)
 
-## ER Circuit (DMSEE) Routing (AVS>VNet)
+> This as-path prepend happens when red circuit advertises the prefixes learnt via GlobalReach to Purple Gateway. It prepends them to represent the fact they've been learnt via GlobalReach, this makes the Gateway prefer the more Direct routes to AVS, without the prepend.
+
+### ER Circuit (DMSEE) Routing (AVS>VNet)
 
 Let's take a look how the blue circuit sees the world.
 
@@ -68,7 +71,7 @@ Network            NextHop           LocPrf    Weight    Path
 
 (192.168.200.0/24 is my VNet prefix)
 
-When checking the primary connection we see 3 paths to the VNet prefix. One via GlobalReach (blue>red>purple) and 2 directly to my ER Gateway (blue>red). **Globalreach routes are set with local preference 10, making them less preferred than the default value that is not shown, of Local Preference 100**.
+When checking the primary connection we see 3 paths to the VNet prefix. One via GlobalReach (blue>red>purple) and 2 directly to my ER Gateway (blue>red). **Ignore the local preference this is a GUI apparition, the tie break here is that EBGP routes are preferred over IBGP routes**.
 
 ![](images/2022-01-31-22-06-24.png)
 
