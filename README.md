@@ -81,6 +81,8 @@ When checking the primary connection we see 3 paths to the VNet prefix. One via 
 - MED? No
 - **eBGP routes are preferred over iBGP routes**. This is our tie break. Remember that our purple VNET Gateway Peer is via eBGP to AS65515, whereas our red MSEE peer is iBGP to AS 12076. Therefore one of our VNET Gateway Routes (multiple nodes) is chosen, which one, or why, does not matter in this context, all that is important is that we choose one of these routes over the GR route.
 
+> 192.168.200.141 is the IP address of one of our ExpressRoute Gateway node IPs within the purple VNet box
+
 ![](images/210215.png)
 
 # Summary
